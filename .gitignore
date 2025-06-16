@@ -1,0 +1,7 @@
+credentials.*
+credentials*.*
+*.yml
+*.yaml
+parameters*.*
+*.log
+
