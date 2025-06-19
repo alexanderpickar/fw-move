@@ -97,15 +97,7 @@ class fw_apic(BaseApic):
                 }}'
 
 
-        # elif action == 'query':
-        #     print(f"  Querying EPG epg_dn} within AAEP {aaep_name}")
-        #     # Here you would implement the logic to query the EPG and AAEP
-        #     # For now, we will just return a dummy response
-        #     return {
-        #         epg_dn' epg_dn,
-        #         'aaep_name': aaep_name,
-        #         'status': 'queried'
-        #     }
+        # TODO: Implement query action if needed
 
         if debug_level > 1:
             print(f"    Sending payload: {payload}")
@@ -283,6 +275,19 @@ def process_cli_arguments(parameter_file='vars/parameters.yml',\
         action="count",
         default=max_workers,
     )
+
+    parser.add_argument(
+        "-s",
+        "--scope",
+        help="""Scope determines what actions should be taken.
+            scope can be a comma separated string and accepts following words:
+            'aaep' - change AAEP bound to an Interface profile
+            'epg' - change EPG assignment within AAEP
+            'arp' - clear arp interface relevant to EPG based on the embedded VLAN ID
+            'all' - (default) do all the above actions""",
+        type=str,
+        default = "all")
+
 
     return parser.parse_args()
 
@@ -477,6 +482,8 @@ def main():
     debug_level = args.verbosity
     max_workers = args.max_workers
     log_file = args.log_file
+    scope_raw = args.scope
+    scope = [scope_entry.strip().lower() for scope_entry in scope_raw.split(',')]
 
 
     # Setup logging
@@ -494,6 +501,7 @@ def main():
     print("  FW MOVE: configure infrastructure for Firewall migration    ")
     print(f"  Parameter file: { parameter_file }                   ")
     print(f"       Verbosity: { debug_level }                   ")
+    print(f"       Scope: { scope }                   ")
     print("   STARTED at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("=====================================================")
 
@@ -548,120 +556,132 @@ def main():
         print(f"Log file {log_file} already exists.")
         logging.info(f"Log file {log_file} already exists.")
 
-
-    # Prepare connection parameters for network devices
-    routers = parameters_raw['routers']
-    print(f"- Processing routers: {routers}")
-    logging.info(f"- Processing routers: {routers}")
-    netdevice_list = processDeviceFile(device_source = routers, default_username=username, default_password = password)
-    if not netdevice_list:
-        print(f"ERROR: Could not connect to any router in {routers}")
-        logging.error(f"ERROR: Could not connect to any router in {routers}")
-        sys.exit(1)
-    else:
-        print(f"- Ready to connect to {len(netdevice_list)} network devices.")
-        logging.info(f"- Ready to connect to {len(netdevice_list)} network devices.")
-    # now we have a list of netdevice objects in netdevice_list.
-
-
-    # Connect to network devices
-    for device in netdevice_list:
-        print(f"  - Connecting to {device.address}",end='')
-        logging.info(f"  - Connecting to {device.address}")
-        device.connect()
-
-        if device.is_connected:
-            print(f": OK")
-            logging.info(f"  - Connected successfully.")
-        else:
-            print(f"    - ERROR: Could not connect to {device.address}")
-            logging.error(f"    - ERROR: Could not connect to {device.address}")
+    if 'all' in scope or 'arp' in scope:
+        # Prepare connection parameters for network devices
+        routers = parameters_raw['routers']
+        print(f"- Processing routers: {routers}")
+        logging.info(f"- Processing routers: {routers}")
+        netdevice_list = processDeviceFile(device_source = routers, default_username=username, default_password = password)
+        if not netdevice_list:
+            print(f"ERROR: Could not connect to any router in {routers}")
+            logging.error(f"ERROR: Could not connect to any router in {routers}")
             sys.exit(1)
-
-    if debug_level > 1:
-        print(f"- Connected to network devices: {[device.address for device in netdevice_list]}")
-        logging.debug(f"- Connected to network devices: {[device.address for device in netdevice_list]}")
-
-    print(f"- Finished connecting to network devices.")
-    logging.info(f"- Finished connecting to network devices.")
-
-
-
-
-
-    # Connect to APIC
-    apic_ip = parameters_raw['apic']['ip']
-    print(f"- Connecting to APIC {apic_ip}.")
-    logging.info(f"- Connecting to APIC {apic_ip}")
-    os.environ.update({"no_proxy": apic_ip})
-    dc_apic = fw_apic(apic_ip,username,password, debug_level=debug_level)
-
-
-    # MIGRATION STEP: Loop through VPCs and set AAEPs
-    print("  SWITCHOVER started at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    print()
-
-    for vpc in parameters_raw['vpc_list']:
-        print(f"- Setting AAEP for VPC {vpc['name']}")
-        logging.info(f"- Setting AAEP for VPC {vpc['name']}")
-        result = dc_apic.set_apic_vpc_aaep(aaep_name=vpc['aaep'], vpc_policy=vpc['name'], debug_level=debug_level)
-
-        if result.status_code == 200:
-            print(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
-            logging.info(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
         else:
-            print(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
-            logging.error(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
+            print(f"- Ready to connect to {len(netdevice_list)} network devices.")
+            logging.info(f"- Ready to connect to {len(netdevice_list)} network devices.")
+        # now we have a list of netdevice objects in netdevice_list.
 
 
+        # Connect to network devices
+        for device in netdevice_list:
+            print(f"  - Connecting to {device.address}",end='')
+            logging.info(f"  - Connecting to {device.address}")
+            device.connect()
 
-    # MIGRATION STEP: Loop through EPGs and process them.
-    #
-    # For each EPG in the list, we will:
-    # - Extract the VLAN ID from the EPG DN
-    # - For each AAEP in the EPG, we will:
-    #   - Add or remove the EPG from the AAEP based on the action specified in the AAEP
-    #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
-    #
-    for epg in parameters_raw['epg_list']:
+            if device.is_connected:
+                print(f": OK")
+                logging.info(f"  - Connected successfully.")
+            else:
+                print(f"    - ERROR: Could not connect to {device.address}")
+                logging.error(f"    - ERROR: Could not connect to {device.address}")
+                sys.exit(1)
 
-        vlan_match = re.search(r'epg-VLAN0*(\d+)_EPG', epg['dn'])
-        if not vlan_match:
-            print(f"ERROR: Could not extract VLAN ID from EPG DN {epg['dn']}")
-            logging.error(f"ERROR: Could not extract VLAN ID from EPG DN {epg['dn']}")
-            continue
-        vlan_id = int(vlan_match.group(1))
-
-
-        aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
-        if aaep_fail_list:
-            print(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
-            logging.error(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
-            continue
-
-        # MIGRATION STEP: clear ARP entries on the routers for the VLAN subinterface associated with the EPG
-        
-        command = f"clear arp interface {epg['clear_arp_base_interface']}" + f"{vlan_id}"
-
-        print(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
-        logging.info(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
         if debug_level > 1:
-            print(f"  - Command: {command}")
-            logging.debug(f"  - Command: {command}")
-        net_result_list = send_command_to_routers(netdevice_list=netdevice_list, command=command, max_workers=max_workers)
+            print(f"- Connected to network devices: {[device.address for device in netdevice_list]}")
+            logging.debug(f"- Connected to network devices: {[device.address for device in netdevice_list]}")
+
+        print(f"- Finished connecting to network devices.")
+        logging.info(f"- Finished connecting to network devices.")
 
 
-        if debug_level > 0:
-            print(f"- ARP clearing results:")
-            logging.debug(f"- ARP clearing results:")
-            for device, result in net_result_list.items():
-                print(f"  NET Device {command} result summary:")
-                print(f"   - {device}:\n {result}")
-                logging.debug(f"   - {device}:\n {result}")
 
-        print(f"- Finished processing EPG {epg['dn']}.")
+
+    if 'all' in scope or 'aaep' in scope or 'epg' in scope:
+        # Prepare connection parameters for APIC
+        if 'apic' not in parameters_raw or 'ip' not in parameters_raw['apic']:
+            print(f"ERROR: Parameter file {parameter_file} does not contain APIC IP address")
+            logging.error(f"ERROR: Parameter file {parameter_file} does not contain APIC IP address")
+            sys.exit(1)
+        # Connect to APIC
+        apic_ip = parameters_raw['apic']['ip']
+        print(f"- Connecting to APIC {apic_ip}.")
+        logging.info(f"- Connecting to APIC {apic_ip}")
+        os.environ.update({"no_proxy": apic_ip})
+        dc_apic = fw_apic(apic_ip,username,password, debug_level=debug_level)
+
+    if 'all' in scope or 'aaep' in scope:
+        # MIGRATION STEP: Loop through VPCs and set AAEPs
+        print("  SWITCHOVER started at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print()
-        logging.info(f"- Finished processing EPG {epg['dn']}.")
+
+        for vpc in parameters_raw['vpc_list']:
+            print(f"- Setting AAEP for VPC {vpc['name']}")
+            logging.info(f"- Setting AAEP for VPC {vpc['name']}")
+            result = dc_apic.set_apic_vpc_aaep(aaep_name=vpc['aaep'], vpc_policy=vpc['name'], debug_level=debug_level)
+
+            if result.status_code == 200:
+                print(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
+                logging.info(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
+            else:
+                print(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
+                logging.error(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
+
+
+    if 'all' in scope or 'epg' in scope:
+
+        # MIGRATION STEP: Loop through EPGs and process them.
+        #
+        # For each EPG in the list, we will:
+        # - Extract the VLAN ID from the EPG DN
+        # - For each AAEP in the EPG, we will:
+        #   - Add or remove the EPG from the AAEP based on the action specified in the AAEP
+        #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
+        #
+        for epg in parameters_raw['epg_list']:
+
+            vlan_match = re.search(r'epg-VLAN0*(\d+)_EPG', epg['dn'])
+            if not vlan_match:
+                print(f"ERROR: Could not extract VLAN ID from EPG DN {epg['dn']}")
+                logging.error(f"ERROR: Could not extract VLAN ID from EPG DN {epg['dn']}")
+                continue
+            vlan_id = int(vlan_match.group(1))
+
+
+            aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
+            if aaep_fail_list:
+                print(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
+                logging.error(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
+                continue
+
+
+            if 'all' in scope or 'arp' in scope:
+                # MIGRATION STEP: clear ARP entries on the routers for the VLAN subinterface associated with the EPG
+                
+                command = f"clear arp interface {epg['clear_arp_base_interface']}" + f"{vlan_id}"
+
+                print(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
+                logging.info(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
+                if debug_level > 1:
+                    print(f"  - Command: {command}")
+                    logging.debug(f"  - Command: {command}")
+                net_result_list = send_command_to_routers(netdevice_list=netdevice_list, command=command, max_workers=max_workers)
+
+
+                if debug_level > 0:
+                    print(f"- ARP clearing results:")
+                    logging.debug(f"- ARP clearing results:")
+                    for device, result in net_result_list.items():
+                        print(f"  NET Device {command} result summary:")
+                        print(f"   - {device}:\n {result}")
+                        logging.debug(f"   - {device}:\n {result}")
+                
+            else:
+                print(f"- Skipping ARP clearing for VLAN {vlan_id}.")
+
+
+            print(f"- Finished processing EPG {epg['dn']}.")
+            print()
+            logging.info(f"- Finished processing EPG {epg['dn']}.")
 
 
 
