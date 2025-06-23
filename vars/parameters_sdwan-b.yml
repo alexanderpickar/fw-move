@@ -1,0 +1,85 @@
+---
+# This is a FW Move parameters file - SDWAN DC-B firewall
+#
+# We need following parameters:
+# - APIC IP address
+# - L3 switch list
+# - list of EPGS and AAEPs for migration
+# - each EPG should have:
+#   - EPG DN
+#   - IOS base interface
+#   - list of AAEPs to add
+#   - list of AAEPs to remove
+# - list of routers for clearing ARP entries from the base interface
+
+routers: []
+  # - ip: 10.178.128.2
+  # - ip: 10.178.128.3
+  # - ip: 10.178.128.4
+  
+
+apic:
+  ip: 10.178.130.130
+
+vpc_list:
+# # VPC list containting VPC names and AAEP names to be set.
+# On the named Interface Policy group of type VPC, we will attach the AAEP that is listed. 
+#   - name: APICKAR_VPC001_VPC
+#     # aaep: CZDC_Empty_AAEP
+#     aaep: CZDC_TELCO_FW-OLD_AAEP
+#   - name: APICKAR_VPC002_VPC
+#     # aaep: CZDC_Empty_AAEP
+#     aaep: CZDC_TELCO_FW-OLD_AAEP
+
+epg_list:
+# EPG list contains list of EPG DNs, AAEP_list with action (add or remove) and base interface for ARP clearing.
+#
+# SAMPLE epg_list:
+  # - dn: uni/tn-CZDC_TDA/ap-tste/epg-VLAN2913_EPG
+  #   clear_arp_base_interface: "Hu1/0/5."
+  #   aaep_list:
+  #   - name: CZDC_TELCO_FW-OLD_AAEP
+  #     action: remove
+  #   - name: CZDC_TELCO_DCFW-PROD_AAEP
+  #     action: add
+
+
+  # # SDWAN FW DC-B 
+  - dn: uni/tn-CZDMZ_PROD/ap-dmz/epg-VLAN0425_EPG  # ATM external DC-B (DMZ)
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDMZ_TELCO_DCFW-PROD_AAEP
+      action: add
+
+  - dn: uni/tn-CZDC_PROD/ap-wsp/epg-VLAN0621_EPG  # UWAN Controllers
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDC_TELCO_DCFW-PROD_AAEP
+      action: add
+
+  - dn: uni/tn-CZDC_PROD/ap-wsp/epg-VLAN0622_EPG  # UWAN Controllers
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDC_TELCO_DCFW-PROD_AAEP
+      action: add
+
+  - dn: uni/tn-CZDC_PROD/ap-wsp/epg-VLAN2979_EPG  # UWAN Exeternal (DMZ)
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDC_TELCO_DCFW-PROD_AAEP
+      action: add
+      
+  - dn: uni/tn-CZDC_PROD/ap-wsp/epg-VLAN0623_EPG  # ATM Controllers
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDC_TELCO_DCFW-PROD_AAEP
+      action: add
+
+  - dn: uni/tn-CZDC_PROD/ap-wsp/epg-VLAN0624_EPG  # ATM Controllers
+    clear_arp_base_interface: ""
+    aaep_list:
+    - name: CZDC_TELCO_DCFW-PROD_AAEP
+      action: add
+
+ 
+  
