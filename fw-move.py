@@ -282,11 +282,11 @@ def process_cli_arguments(parameter_file='vars/parameters.yml',\
         help="""Scope determines what actions should be taken.
             scope can be a comma separated string and accepts following words:
             'aaep' - change AAEP bound to an Interface profile
-            'epg' - change EPG assignment within AAEP
+            'epg' - (default) change EPG assignment within AAEP
             'arp' - clear arp interface relevant to EPG based on the embedded VLAN ID
-            'all' - (default) do all the above actions""",
+            'all' - do all the above actions""",
         type=str,
-        default = "all")
+        default = "epg")
 
 
     return parser.parse_args()
