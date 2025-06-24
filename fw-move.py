@@ -523,10 +523,11 @@ def main():
         print(f"ERROR: Parameter file {parameter_file} does not contain APIC IP address")
         logging.error(f"ERROR: Parameter file {parameter_file} does not contain APIC IP address")
         sys.exit(1)
-    if ('all' in scope or 'arp' in scope:) and ('routers' not in parameters_raw or not parameters_raw['routers']):
-        print(f"ERROR: Parameter file {parameter_file} does not contain routers")
-        logging.error(f"ERROR: Parameter file {parameter_file} does not contain routers")
-        sys.exit(1)
+    if 'all' in scope or 'arp' in scope:
+        if 'routers' not in parameters_raw or not parameters_raw['routers']):
+            print(f"ERROR: Parameter file {parameter_file} does not contain routers")
+            logging.error(f"ERROR: Parameter file {parameter_file} does not contain routers")
+            sys.exit(1)
     if 'epg_list' not in parameters_raw or not parameters_raw['epg_list']:
         print(f"ERROR: Parameter file {parameter_file} does not contain EPG list")
         logging.error(f"ERROR: Parameter file {parameter_file} does not contain EPG list")
