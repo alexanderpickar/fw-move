@@ -108,6 +108,27 @@ class fw_apic(BaseApic):
 
         return response
 
+    def query_apic_vpc_aaep(self, aaep_name: str, vpc_policy: str, debug_level: int = 0):
+        """
+        Query the AAEP association for a given VPC policy group.
+        Args:
+            aaep_name (str): Name of the AAEP.
+            vpc_policy (str): Name of the VPC policy group.
+            debug_level (int): Debug level for logging.
+        Returns:
+            Response object from the requests library.
+        """
+        vpc_policy = vpc_policy.strip()
+        aaep_name = aaep_name.strip()
+        dn = f"uni/infra/funcprof/accbundle-{vpc_policy}/rsattEntP"
+        # Construct the URL for the query
+        url = f"/api/node/mo/{dn}.json"
+        if debug_level > 1:
+            print(f"    Querying AAEP association for VPC policy '{vpc_policy}' at '{url}'")
+            logging.debug(f"    Querying AAEP association for VPC policy '{vpc_policy}' at '{url}'")
+        response = self.get(url)
+        return response
+
 
     def set_apic_vpc_aaep(self, aaep_name: str, vpc_policy: str, debug_level: int = 0):
         # TODO: Implement the method to change AAEP inside of a VPC policy
@@ -532,6 +553,7 @@ def main():
         print(f"ERROR: Parameter file {parameter_file} does not contain EPG list")
         logging.error(f"ERROR: Parameter file {parameter_file} does not contain EPG list")
         sys.exit(1)
+
     print(f"- Parameter file {parameter_file} read successfully.")
     logging.info(f"- Parameter file {parameter_file} read successfully.")
     print(f"- APIC IP: {parameters_raw['apic']['ip']}")
@@ -595,8 +617,7 @@ def main():
         logging.info(f"- Finished connecting to network devices.")
 
 
-
-
+    # Prepare APIC connection
     if 'all' in scope or 'aaep' in scope or 'epg' in scope:
         # Prepare connection parameters for APIC
         if 'apic' not in parameters_raw or 'ip' not in parameters_raw['apic']:
@@ -610,11 +631,14 @@ def main():
         os.environ.update({"no_proxy": apic_ip})
         dc_apic = fw_apic(apic_ip,username,password, debug_level=debug_level)
 
+
+    # MIGRATION STEP: Loop through VPCs and set AAEPs
+    # For each VPC in the list, we will:
+    # - Set the AAEP for the VPC policy
+    #
     if 'all' in scope or 'aaep' in scope:
-        # MIGRATION STEP: Loop through VPCs and set AAEPs
         print("  SWITCHOVER started at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print()
-
         for vpc in parameters_raw['vpc_list']:
             print(f"- Setting AAEP for VPC {vpc['name']}")
             logging.info(f"- Setting AAEP for VPC {vpc['name']}")
@@ -628,16 +652,16 @@ def main():
                 logging.error(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
 
 
+    # MIGRATION STEP: Loop through EPGs and process them.
+    #
+    # For each EPG in the list, we will:
+    # - Extract the VLAN ID from the EPG DN
+    # - For each AAEP in the EPG, we will:
+    #   - Add or remove the EPG from the AAEP based on the action specified in the AAEP
+    #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
+    #
     if 'all' in scope or 'epg' in scope:
 
-        # MIGRATION STEP: Loop through EPGs and process them.
-        #
-        # For each EPG in the list, we will:
-        # - Extract the VLAN ID from the EPG DN
-        # - For each AAEP in the EPG, we will:
-        #   - Add or remove the EPG from the AAEP based on the action specified in the AAEP
-        #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
-        #
         for epg in parameters_raw['epg_list']:
 
             vlan_match = re.search(r'epg-VLAN0*(\d+)_EPG', epg['dn'])
