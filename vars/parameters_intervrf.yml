@@ -45,287 +45,287 @@ epg_list:
 # EPG list contains list of EPG DNs, AAEP_list with action (add or remove) and base interface for ARP clearing.
   # InterVRF EPGs
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN2900_EPG
-    clear_arp_base_interface: "Port-channel121."
-    aaep_list:
-    - name: CZDC_TELCO_DCFW-PROD_AAEP
-      action: add
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN2900_EPG
+   clear_arp_base_interface: "Port-channel121."
+   aaep_list:
+   - name: CZDC_TELCO_DCFW-PROD_AAEP
+     action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-usr/epg-VLAN2901_EPG
+  - dn: uni/tn-CZDC_PROD/ap-usr/epg-VLAN2901_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-dc/epg-VLAN2902_EPG
+  - dn: uni/tn-CZDC_PROD/ap-dc/epg-VLAN2902_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-voice/epg-VLAN2903_EPG
+  - dn: uni/tn-CZDC_PROD/ap-voice/epg-VLAN2903_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-infra/epg-VLAN2904_EPG
+  - dn: uni/tn-CZDC_PROD/ap-infra/epg-VLAN2904_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-cat/epg-VLAN2905_EPG
+  - dn: uni/tn-CZDC_PROD/ap-cat/epg-VLAN2905_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-adm/epg-VLAN2906_EPG
+  - dn: uni/tn-CZDC_PROD/ap-adm/epg-VLAN2906_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-ext2in/epg-VLAN2907_EPG
+  - dn: uni/tn-CZDC_PROD/ap-ext2in/epg-VLAN2907_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-dev/epg-VLAN2908_EPG
+  - dn: uni/tn-CZDC_TDA/ap-dev/epg-VLAN2908_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-ext2out/epg-VLAN2909_EPG
+  - dn: uni/tn-CZDC_PROD/ap-ext2out/epg-VLAN2909_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-wmd/epg-VLAN2910_EPG
+  - dn: uni/tn-CZDC_PROD/ap-wmd/epg-VLAN2910_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-net/epg-VLAN2911_EPG
+  - dn: uni/tn-CZDC_PROD/ap-net/epg-VLAN2911_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-test/epg-VLAN2912_EPG
+  - dn: uni/tn-CZDC_TDA/ap-test/epg-VLAN2912_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tste/epg-VLAN2913_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tste/epg-VLAN2913_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-obl/epg-VLAN2914_EPG
+  - dn: uni/tn-CZDC_PROD/ap-obl/epg-VLAN2914_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-iatm/epg-VLAN2915_EPG
+  - dn: uni/tn-CZDC_PROD/ap-iatm/epg-VLAN2915_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-cztdcpoj/epg-VLAN2916_EPG
+  - dn: uni/tn-CZDC_TDA/ap-cztdcpoj/epg-VLAN2916_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tdc/epg-VLAN2917_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tdc/epg-VLAN2917_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-apost/epg-VLAN2918_EPG
+  - dn: uni/tn-CZDC_PROD/ap-apost/epg-VLAN2918_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-hb/epg-VLAN2919_EPG
+  - dn: uni/tn-CZDC_PROD/ap-hb/epg-VLAN2919_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-poj/epg-VLAN2920_EPG
+  - dn: uni/tn-CZDC_PROD/ap-poj/epg-VLAN2920_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-sk/epg-VLAN2921_EPG
+  - dn: uni/tn-CZDC_PROD/ap-sk/epg-VLAN2921_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-cedc/epg-VLAN2922_EPG
+  - dn: uni/tn-CZDC_PROD/ap-cedc/epg-VLAN2922_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-bee/epg-VLAN2923_EPG
+  - dn: uni/tn-CZDC_PROD/ap-bee/epg-VLAN2923_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-spc1/epg-VLAN2925_EPG
+  - dn: uni/tn-CZDC_PROD/ap-spc1/epg-VLAN2925_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tobl/epg-VLAN2926_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tobl/epg-VLAN2926_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-wmd2/epg-VLAN2927_EPG
+  - dn: uni/tn-CZDC_PROD/ap-wmd2/epg-VLAN2927_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-byod/epg-VLAN2928_EPG
+  - dn: uni/tn-CZDC_PROD/ap-byod/epg-VLAN2928_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-upoj/epg-VLAN2929_EPG
+  - dn: uni/tn-CZDC_PROD/ap-upoj/epg-VLAN2929_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tpoj/epg-VLAN2930_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tpoj/epg-VLAN2930_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-uleas/epg-VLAN2931_EPG
+  - dn: uni/tn-CZDC_PROD/ap-uleas/epg-VLAN2931_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tleas/epg-VLAN2932_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tleas/epg-VLAN2932_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-uflexb/epg-VLAN2933_EPG
+  - dn: uni/tn-CZDC_PROD/ap-uflexb/epg-VLAN2933_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-tflexb/epg-VLAN2934_EPG
+  - dn: uni/tn-CZDC_TDA/ap-tflexb/epg-VLAN2934_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-uaflexb/epg-VLAN2936_EPG
+  - dn: uni/tn-CZDC_PROD/ap-uaflexb/epg-VLAN2936_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_TDA/ap-taflexb/epg-VLAN2937_EPG
+  - dn: uni/tn-CZDC_TDA/ap-taflexb/epg-VLAN2937_EPG
     clear_arp_base_interface: "Hun1/0/5."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN3960_EPG
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN3960_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0800_EPG
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0800_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0090_EPG
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0090_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0091_EPG
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0091_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
       action: add
 
 
-  -dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0092_EPG
+  - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0092_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
     - name: CZDC_TELCO_DCFW-PROD_AAEP
