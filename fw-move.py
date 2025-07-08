@@ -413,7 +413,7 @@ def modify_aaep(dc_apic, epg):
         print(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
         logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
 
-        for aaep in epg['aaep_name_list']:
+        for aaep in epg['aaep_list']:
             print(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
             logging.info(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
             
