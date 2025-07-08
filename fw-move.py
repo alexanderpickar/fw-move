@@ -414,8 +414,8 @@ def modify_aaep(dc_apic, epg):
         logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
 
         for aaep in epg['aaep_list']:
-            print(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' attachment to AAEP {aaep['name']}")
-            logging.info(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' attachment to AAEP {aaep['name']}")
+            print(f"  - {aaep['action'].upper()} EPG \'{epg['dn']}\' association to AAEP {aaep['name']}")
+            logging.info(f"  - {aaep['action'].upper()} EPG \'{epg['dn']}\' association to AAEP {aaep['name']}")
             
             result = dc_apic.set_aaep_epg(aaep_name=aaep['name'], epg_dn=epg['dn'], action=aaep['action'], debug_level=debug_level)
 
@@ -638,6 +638,16 @@ def main():
         dc_apic = fw_apic(apic_ip,username,password, debug_level=debug_level)
 
 
+    # READY FOR MIGRATION - wait for user input
+    print()
+    print(" **** READY FOR MIGRATION ****")
+    print()
+    user_input = input("Press Enter to continue or Ctrl+C to exit...")
+    print()
+
+
+
+
     # MIGRATION STEP: Loop through VPCs and set AAEPs
     # For each VPC in the list, we will:
     # - Set the AAEP for the VPC policy
@@ -664,12 +674,12 @@ def main():
 
             # Try to attach the AAEP to the VPC
             if 'test' in scope:
-                print(f"- TEST MODE: Would attach AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                print(f"  - TEST MODE: Would attach AAEP {vpc['aaep']} to VPC {vpc['name']}")
                 logging.info(f"- TEST MODE: Would attach AAEP {vpc['aaep']} to VPC {vpc['name']}")
                 continue
 
             else:
-                print(f"- Attaching AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                print(f"  - Attaching AAEP {vpc['aaep']} to VPC {vpc['name']}")
                 logging.info(f"- Attaching AAEP {vpc['aaep']} to VPC {vpc['name']}")
                 result = dc_apic.set_apic_vpc_aaep(aaep_name=vpc['aaep'], vpc_policy=vpc['name'], debug_level=debug_level)
 
@@ -728,7 +738,7 @@ def main():
 
             else:
                 print(f"  - Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
-                logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
+                logging.info(f"  - Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
                 aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
                 if aaep_success_list:
                     print(f"   SUCCESS: Setting AAEPs for {epg['dn']}: {aaep_success_list}")
