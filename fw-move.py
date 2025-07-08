@@ -659,8 +659,8 @@ def main():
                 print(f"{response.status_code}: {response.text}")
             else:
                 aaep_response = response.json()["imdata"][0]["infraRsAttEntP"]["attributes"]["tDn"]
-                print(f"   INFO: Initial VPC {vpc['name']} contains AAEP {aaep_response}")
-                logging.info(f"   Initial VPC {vpc['name']} contains AAEP {aaep_response}")
+                print(f"  INFO: Initial VPC {vpc['name']} contains AAEP {aaep_response}")
+                logging.info(f"Initial VPC {vpc['name']} contains AAEP {aaep_response}")
 
             # Try to attach the AAEP to the VPC
             if 'test' in scope:
@@ -707,7 +707,7 @@ def main():
                         print(f"{response.status_code}: {response.text}")
                     else:
                         epg_response = response.json()['imdata']
-                        print(f"  AAEP {aaep_entry['name']} contains these EPGs {len(epg_response)}:")
+                        print(f"  INFO: AAEP {aaep_entry['name']} contains these EPGs {len(epg_response)}:")
                         for epg_query_repsponse in epg_response:
                             print(f"  - {epg_query_repsponse['infraRsFuncToEpg']['attributes']['tDn']}")
 
@@ -722,16 +722,16 @@ def main():
             vlan_id = int(vlan_match.group(1))
 
             if 'test' in scope:
-                print(f"- TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
-                logging.info(f"- TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
+                print(f"  - TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
+                logging.info(f"  - TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
                 continue
 
             else:
-                print(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
+                print(f"  - Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
                 logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
                 aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
                 if aaep_success_list:
-                    print(f"  SUCCESS: Setting AAEPs for {epg['dn']}: {aaep_success_list}")
+                    print(f"   SUCCESS: Setting AAEPs for {epg['dn']}: {aaep_success_list}")
                     logging.info(f"  SUCCESS: Problems setting AAEPs for {epg['dn']}: {aaep_success_list}")
 
                 if aaep_fail_list:
