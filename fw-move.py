@@ -696,7 +696,7 @@ def main():
             for aaep_entry in epg['aaep_list']:
                 if aaep_entry['name'] not in aaep_name_list:
                     aaep_name_list.append(aaep_entry['name'])
-                    querystring = f'mo/uni/infra/attentp-{aaep_entry['name']}/gen-default.json?query-target=children&target-subtree-class=infraRsFuncToEpg'
+                    querystring = f"mo/uni/infra/attentp-{aaep_entry['name']}/gen-default.json?query-target=children&target-subtree-class=infraRsFuncToEpg"
                     response = dc_apic.query(querystring)
 
                     if response.status_code != 200:
