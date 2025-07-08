@@ -642,7 +642,7 @@ def main():
     print()
     print(" **** READY FOR MIGRATION ****")
     print()
-    user_input = input("Press Enter to continue or Ctrl+C to exit...")
+    user_input = input("Press Enter to continue or Ctrl+C to exit...\n\n")
     print()
 
 
