@@ -413,7 +413,7 @@ def modify_aaep(dc_apic, epg):
         print(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
         logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
 
-        for aaep in epg['aaep_list']:
+        for aaep in epg['aaep_name_list']:
             print(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
             logging.info(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
             
@@ -524,6 +524,12 @@ def main():
     print(f"       Verbosity: { debug_level }                   ")
     print(f"       Scope: { scope }                   ")
     print("   STARTED at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    if 'test' in scope:
+        print()
+        print("  TEST MODE: No changes will be made to the devices.")
+        logging.info("  TEST MODE: No changes will be made to the devices.")
+        print()
+
     print("=====================================================")
 
 
@@ -639,17 +645,41 @@ def main():
     if 'all' in scope or 'aaep' in scope:
         print("  SWITCHOVER started at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print()
-        for vpc in parameters_raw['vpc_list']:
-            print(f"- Setting AAEP for VPC {vpc['name']}")
-            logging.info(f"- Setting AAEP for VPC {vpc['name']}")
-            result = dc_apic.set_apic_vpc_aaep(aaep_name=vpc['aaep'], vpc_policy=vpc['name'], debug_level=debug_level)
 
-            if result.status_code == 200:
-                print(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
-                logging.info(f"  - Successfully set AAEP {vpc['aaep']} for VPC {vpc['name']}")
+        print('MIGRATION STEP: Loop through VPCs and set AAEPs')
+        logging.info('MIGRATION STEP: Loop through VPCs and set AAEPs')
+
+        for vpc in parameters_raw['vpc_list']:
+
+            # Query the current AAEP for the VPC
+            querystring = f'mo/uni/infra/funcprof/accbundle-{vpc['name']}.json?query-target=subtree&target-subtree-class=infraRsAttEntP'
+            response = dc_apic.query(querystring)
+            if response.status_code != 200:
+                print(f"ERROR sending {querystring}:")
+                print(f"{response.status_code}: {response.text}")
             else:
-                print(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
-                logging.error(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
+                aaep_response = response.json()["imdata"][0]["infraRsAttEntP"]["attributes"]["tDn"]
+                print(f"VPC {vpc['name']} contains AAEP {aaep_response}\n")
+                # print("Full JSON Response:")
+                # print(json.dumps(response.json()['imdata'],indent=2))
+
+            # Try to attach the AAEP to the VPC
+            if 'test' in scope:
+                print(f"- TEST MODE: Would attach AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                logging.info(f"- TEST MODE: Would attach AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                continue
+
+            else:
+                print(f"- Attaching AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                logging.info(f"- Attaching AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                result = dc_apic.set_apic_vpc_aaep(aaep_name=vpc['aaep'], vpc_policy=vpc['name'], debug_level=debug_level)
+
+                if result.status_code == 200:
+                    print(f"  - Successfully attached AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                    logging.info(f"  - Successfully attached AAEP {vpc['aaep']} to VPC {vpc['name']}")
+                else:
+                    print(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
+                    logging.error(f"  - ERROR: Could not set AAEP {vpc['aaep']} for VPC {vpc['name']}: {result.status_code} {result.reason}")
 
 
     # MIGRATION STEP: Loop through EPGs and process them.
@@ -661,9 +691,26 @@ def main():
     #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
     #
     if 'all' in scope or 'epg' in scope:
-
+        aaep_name_list = []  # List containing all AAEP names
         for epg in parameters_raw['epg_list']:
+            for aaep_entry in epg['aaep_list']:
+                if aaep_entry['name'] not in aaep_name_list:
+                    aaep_name_list.append(aaep_entry['name'])
+                    querystring = f'mo/uni/infra/attentp-{aaep_entry['name']}/gen-default.json?query-target=children&target-subtree-class=infraRsFuncToEpg'
+                    response = dc_apic.query(querystring)
 
+                    if response.status_code != 200:
+                        print(f"ERROR sending {querystring}:")
+                        print(f"{response.status_code}: {response.text}")
+                    else:
+                        epg_response = response.json()['imdata']
+                        print(f"  AAEP {aaep_entry['name']} contains these EPGs {len(epg_response)}:")
+                        for epg_query_repsponse in epg_response:
+                            print(f"  - {epg_query_repsponse['infraRsFuncToEpg']['attributes']['tDn']}")
+
+        print()
+        for epg in parameters_raw['epg_list']:
+            # Attach the EPG to the AAEP
             vlan_match = re.search(r'epg-VLAN0*(\d+)_EPG', epg['dn'])
             if not vlan_match:
                 print(f"ERROR: Could not extract VLAN ID from EPG DN {epg['dn']}")
@@ -671,24 +718,39 @@ def main():
                 continue
             vlan_id = int(vlan_match.group(1))
 
-
-            aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
-            if aaep_fail_list:
-                print(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
-                logging.error(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
+            if 'test' in scope:
+                print(f"- TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
+                logging.info(f"- TEST MODE: Would process EPG {epg['dn']} with VLAN ID {vlan_id}")
                 continue
 
+            else:
+                print(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
+                logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
+                aaep_success_list, aaep_fail_list = modify_aaep(dc_apic, epg)
+                if aaep_success_list:
+                    print(f"  SUCCESS: Setting AAEPs for {epg['dn']}: {aaep_success_list}")
+                    logging.info(f"  SUCCESS: Problems setting AAEPs for {epg['dn']}: {aaep_success_list}")
 
+                if aaep_fail_list:
+                    print(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
+                    logging.error(f"ERROR: Problems setting AAEPs for {epg['dn']}: {aaep_fail_list}")
+                    continue
+
+
+            # MIGRATION STEP: clear ARP entries on the routers for the VLAN subinterface associated with the EPG
             if 'all' in scope or 'arp' in scope:
-                # MIGRATION STEP: clear ARP entries on the routers for the VLAN subinterface associated with the EPG
                 
                 command = f"clear arp interface {epg['clear_arp_base_interface']}" + f"{vlan_id}"
 
                 print(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
                 logging.info(f"- Clearing ARP entries for VLAN {vlan_id} on routers: {', '.join([device.address for device in netdevice_list])}")
+                if 'test' in scope:
+                    command = '!' + command  # Prefix the command with '!' to indicate test mode
+                    print(f"  TEST mode only - sending {command}")
                 if debug_level > 1:
                     print(f"  - Command: {command}")
                     logging.debug(f"  - Command: {command}")
+                
                 net_result_list = send_command_to_routers(netdevice_list=netdevice_list, command=command, max_workers=max_workers)
 
 
