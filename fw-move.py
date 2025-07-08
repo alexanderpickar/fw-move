@@ -652,7 +652,7 @@ def main():
         for vpc in parameters_raw['vpc_list']:
 
             # Query the current AAEP for the VPC
-            querystring = f'mo/uni/infra/funcprof/accbundle-{vpc['name']}.json?query-target=subtree&target-subtree-class=infraRsAttEntP'
+            querystring = f"mo/uni/infra/funcprof/accbundle-{vpc['name']}.json?query-target=subtree&target-subtree-class=infraRsAttEntP"
             response = dc_apic.query(querystring)
             if response.status_code != 200:
                 print(f"ERROR sending {querystring}:")
