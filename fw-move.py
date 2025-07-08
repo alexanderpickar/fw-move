@@ -414,8 +414,8 @@ def modify_aaep(dc_apic, epg):
         logging.info(f"- Processing EPG {epg['dn']} with VLAN ID {vlan_id}")
 
         for aaep in epg['aaep_list']:
-            print(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
-            logging.info(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' in AAEP {aaep['name']}")
+            print(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' attachment to AAEP {aaep['name']}")
+            logging.info(f"  - {aaep['action'].upper()} \'EPG {epg['dn']}\' attachment to AAEP {aaep['name']}")
             
             result = dc_apic.set_aaep_epg(aaep_name=aaep['name'], epg_dn=epg['dn'], action=aaep['action'], debug_level=debug_level)
 
@@ -646,7 +646,7 @@ def main():
         print("  SWITCHOVER started at: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print()
 
-        print('MIGRATION STEP: Loop through VPCs and set AAEPs')
+        print('# MIGRATION STEP: Loop through VPCs and set AAEPs')
         logging.info('MIGRATION STEP: Loop through VPCs and set AAEPs')
 
         for vpc in parameters_raw['vpc_list']:
@@ -659,9 +659,8 @@ def main():
                 print(f"{response.status_code}: {response.text}")
             else:
                 aaep_response = response.json()["imdata"][0]["infraRsAttEntP"]["attributes"]["tDn"]
-                print(f"VPC {vpc['name']} contains AAEP {aaep_response}\n")
-                # print("Full JSON Response:")
-                # print(json.dumps(response.json()['imdata'],indent=2))
+                print(f"   INFO: Initial VPC {vpc['name']} contains AAEP {aaep_response}")
+                logging.info(f"   Initial VPC {vpc['name']} contains AAEP {aaep_response}")
 
             # Try to attach the AAEP to the VPC
             if 'test' in scope:
@@ -691,6 +690,10 @@ def main():
     #   - Clear ARP entries on the routers for the VLAN subinterface associated with the EPG
     #
     if 'all' in scope or 'epg' in scope:
+
+        print('\n# MIGRATION STEP: Modify EPG to AAEP associations\n')
+        logging.info('MIGRATION STEP: Modify EPG to AAEP associations')
+
         aaep_name_list = []  # List containing all AAEP names
         for epg in parameters_raw['epg_list']:
             for aaep_entry in epg['aaep_list']:
