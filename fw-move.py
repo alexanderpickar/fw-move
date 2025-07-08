@@ -641,6 +641,8 @@ def main():
     # READY FOR MIGRATION - wait for user input
     print()
     print(" **** READY FOR MIGRATION ****")
+    if 'test' in scope:
+        print("     (TEST MODE)")
     print()
     user_input = input("Press Enter to continue or Ctrl+C to exit...\n\n")
     print()
