@@ -31,7 +31,7 @@ vpc_list:
   aaep: CZDC_TELCO_DCFW-OLD_AAEP  # AAEP without EPG assignment for potential rollback
 - name: DC-B-LFA152:153_VPC102
   aaep: CZDC_TELCO_DCFW-OLD_AAEP  # AAEP without EPG assignment for potential rollback
-- name: DC-B-LFA152:153_VPC102
+- name: DC-B-LFA152:153_VPC103
   aaep: CZDC_TELCO_DCFW-OLD_AAEP  # AAEP without EPG assignment for potential rollback
 
 
@@ -39,7 +39,6 @@ epg_list:
 # EPG list contains list of EPG DNs, AAEP_list with action (add or remove) and base interface for ARP clearing.
 
 # Highest VLAN ID for healthcheck
-
   - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN3960_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
@@ -47,9 +46,7 @@ epg_list:
       action: add
 
 
-
 # Lowest VLAN ID for healthcheck
-
   - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0090_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
@@ -57,7 +54,6 @@ epg_list:
       action: add
 
 # OOB Firewall connections
-
   - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN0091_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
@@ -72,9 +68,7 @@ epg_list:
       action: add
 
 
-
-  # InterVRF EPGs
-
+# InterVRF EPGs
   - dn: uni/tn-CZDC_PROD/ap-global/epg-VLAN2900_EPG
     clear_arp_base_interface: "Port-channel121."
     aaep_list:
